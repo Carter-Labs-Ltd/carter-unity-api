@@ -1,3 +1,4 @@
+<img src="https://www.carterapi.com/carter-full-white-transparent.svg" style="width: 200px"/>
 # Carter Unity
 
 ## Installation
