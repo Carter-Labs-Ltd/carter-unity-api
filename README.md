@@ -40,7 +40,7 @@ public class MyExampleScript : MonoBehaviour
 
     void Start()
     {
-        mika = new Agent("APIKEY", "https://dev-api.carterapi.com", onConnect, onDisconnect, onMessage);
+        mika = new Agent("APIKEY", "https://api.carterapi.com", onConnect, onDisconnect, onMessage);
     }
 
     void Update()
