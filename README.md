@@ -1,5 +1,7 @@
 <img src="https://www.carterapi.com/carter-full-white-transparent.svg" style="width: 200px"/>
+
 # Carter Unity
+Make your game characters talk in minutes with next generation artificial intelligence.
 
 ## Installation
 This package uses the web socket protocol under the hood. To get started you will first need to install [SocketIOUnity](https://github.com/itisnajim/SocketIOUnity):
