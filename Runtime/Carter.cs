@@ -14,15 +14,17 @@ namespace Carter {
 
             public string url { get; set; }
             public string apiKey { get; set; }
+            public string playerId { get; set; }
             public string agentId { get; set; }
 
             public delegate void OnMessage(string message);
 
-            public Agent(string apiKey, string url, Action onConnect, Action onDisconnect, OnMessage onMessage )
+            public Agent(string apiKey, string playerId, string url, Action onConnect, Action onDisconnect, OnMessage onMessage )
             {
                 this.apiKey = apiKey;
                 this.agentId = agentId;
                 this.url = url;
+                this.playerId = playerId;
 
                 Connect(onConnect, onDisconnect, onMessage);
             }
@@ -67,16 +69,18 @@ namespace Carter {
 
             }
 
+            public void disconnect() {
+                socket.Disconnect();
+            }
 
             public void send(string message) {
-
                 if (socket == null) {
                     Debug.Log("Socket is null");
                     return;
                 } else {
                     Debug.Log("Socket is not null");
 
-                    socket.Emit("message", message);
+                    socket.EmitStringAsJSON("message", "{\"text\": \"" + message + "\", \"apiKey\": \"" + this.apiKey + "\", \"playerId\": \"" + this.playerId + "\"}");
                 }
             }
     }
