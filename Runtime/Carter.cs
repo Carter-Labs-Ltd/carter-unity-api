@@ -8,6 +8,17 @@ using SocketIOClient.Newtonsoft.Json;
 
 namespace Carter {
 
+    [System.Serializable]
+    class AgentOutput {
+        public string text;
+    }
+
+    [System.Serializable]
+    class AgentResponse {
+        public AgentOutput output;
+        public string input;
+    }
+
     public class Agent
     {
         public SocketIOUnity socket;
@@ -63,8 +74,8 @@ namespace Carter {
 
                 socket.OnUnityThread("message", (data) =>
                 {
-                    // data is { output : {text : string}}}
-                    var text = data.GetValue("output").GetValue("text").ToString();
+                    // data is { output : {text : string}, input : string }
+                    AgentResponse response = data.GetValue<AgentResponse>();
                     onMessage(message);
                 });
 
