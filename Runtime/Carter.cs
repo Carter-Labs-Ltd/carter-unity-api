@@ -76,7 +76,7 @@ namespace Carter {
                 {
                     // data is { output : {text : string}, input : string }
                     AgentResponse response = data.GetValue<AgentResponse>();
-                    onMessage(message);
+                    onMessage(response.output.text);
                 });
 
             }
