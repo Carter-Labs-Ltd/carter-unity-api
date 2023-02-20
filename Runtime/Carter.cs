@@ -63,7 +63,8 @@ namespace Carter {
 
                 socket.OnUnityThread("message", (data) =>
                 {
-                    var message = data.GetValue<string>();
+                    // data is { output : {text : string}}}
+                    var text = data.GetValue("output").GetValue("text").ToString();
                     onMessage(message);
                 });
 

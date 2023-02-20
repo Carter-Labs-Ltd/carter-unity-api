@@ -1,19 +1,20 @@
 <img src="https://www.carterapi.com/carter-full-white-transparent.svg" style="width: 200px"/>
 
 # Carter Unity
-Make your game characters talk in minutes with next generation artificial intelligence. This package is still under active development and is not yet ready for production use. 
+
+Make your game characters talk in minutes with next generation artificial intelligence. This package is still under active development and is not yet ready for production use.
 
 ## Installation
+
 This package uses the web socket protocol under the hood. To get started you will first need to install [SocketIOUnity](https://github.com/itisnajim/SocketIOUnity):
 
 To do this, go to: Window -> Package Manager -> Click the (+) add package from git URL -> Paste:
 
-```https://github.com/itisnajim/SocketIOUnity.git```
+`https://github.com/itisnajim/SocketIOUnity.git`
 
 Then install the Carter Package! To do this, go to: Window -> Package Manager -> Click the (+) add package from git URL -> Paste:
 
-```https://github.com/Carter-Labs-Ltd/carter-unity.git```
-
+`https://github.com/Carter-Labs-Ltd/carter-unity.git`
 
 ## Usage
 
@@ -40,19 +41,21 @@ public class MyExampleScript : MonoBehaviour
 
     void Start()
     {
-        mika = new Agent("APIKEY", "https://api.carterapi.com", onConnect, onDisconnect, onMessage);
+        mika = new Agent("APIKEY", "PLAYERID", "https://api.carterapi.com", onConnect, onDisconnect, onMessage);
     }
 
     void Update()
     {
         // ... on button click etc
         mika.send("Hello");
+
+        // ... once player walks away from character etc
+        mika.disconnect();
     }
 }
 ```
 
 [Further Documentation](https://carterapi.gitbook.io/carter-docs/)
-
 
 ## Join The Community
 
