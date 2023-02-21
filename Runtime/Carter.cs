@@ -47,10 +47,10 @@ namespace Carter {
                 this.onMessage = onMessage;
 
 
-                Connect();
+                connect();
             }
 
-            public void Connect()
+            public void connect()
             {
 
                 var uri = new Uri(url);
@@ -94,7 +94,7 @@ namespace Carter {
 
             }
 
-            public void Disconnect() {
+            public void disconnect() {
                 socket.Disconnect();
             }
 

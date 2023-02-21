@@ -49,8 +49,14 @@ public class MyExampleScript : MonoBehaviour
         // ... on button click etc
         mika.send("Hello");
 
-        // ... once player walks away from character etc
-        mika.disconnect();
+
+        // ... OTHER OPTIONS
+
+        mika.connected // true/false
+
+        mika.connect(); // reconnect
+
+        mika.disconnect(); // disconnect
     }
 }
 ```
