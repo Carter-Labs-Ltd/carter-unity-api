@@ -28,7 +28,13 @@ namespace Carter {
             public string playerId { get; set; }
             public string agentId { get; set; }
 
+            public Boolean connected { get; set; }
+
             public delegate void OnMessage(string message);
+
+            Action onConnect { get; set;}
+            Action onDisconnect { get; set;}
+            OnMessage onMessage { get; set;}
 
             public Agent(string apiKey, string playerId, string url, Action onConnect, Action onDisconnect, OnMessage onMessage )
             {
@@ -36,11 +42,15 @@ namespace Carter {
                 this.agentId = agentId;
                 this.url = url;
                 this.playerId = playerId;
+                this.onConnect = onConnect;
+                this.onDisconnect = onDisconnect;
+                this.onMessage = onMessage;
 
-                Connect(onConnect, onDisconnect, onMessage);
+
+                Connect();
             }
 
-            void Connect(Action onConnect, Action onDisconnect, OnMessage onMessage)
+            public void Connect()
             {
 
                 var uri = new Uri(url);
@@ -60,12 +70,16 @@ namespace Carter {
                 {
                     Debug.Log("socket.OnConnected"); 
 
+                    // set connected
+                    connected = true;
+
                     onConnect();
                 };
 
                 socket.OnDisconnected += (sender, e) =>
                 {
                     Debug.Log("socket.OnDisconnected");
+                    connected = false;
                     onDisconnect();
                 };
 
@@ -74,14 +88,13 @@ namespace Carter {
 
                 socket.OnUnityThread("message", (data) =>
                 {
-                    // data is { output : {text : string}, input : string }
                     AgentResponse response = data.GetValue<AgentResponse>();
                     onMessage(response.output.text);
                 });
 
             }
 
-            public void disconnect() {
+            public void Disconnect() {
                 socket.Disconnect();
             }
 
