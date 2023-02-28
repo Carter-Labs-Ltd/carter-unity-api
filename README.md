@@ -50,7 +50,8 @@ public class MyExampleScript : MonoBehaviour
 
     void Start()
     {
-        mika = new Agent("APIKEY", "PLAYERID", "https://api.carterapi.com", onConnect, onDisconnect, onMessage, onVoice);
+        mika = gameObject.AddComponent<Agent>();
+        mika.init("API_KEY", "PLAYER_ID", "https://dev-api.carterapi.com", onConnect, onDisconnect, onMessage, onVoice);
     }
 
     void Update()
@@ -70,7 +71,7 @@ public class MyExampleScript : MonoBehaviour
 }
 ```
 
-### Text Based Chat
+### Voice Based Chat
 
 ```...
 using Carter;
@@ -102,7 +103,6 @@ public class MyExampleScript : MonoBehaviour
     {
         mika = gameObject.AddComponent<Agent>();
         mika.init("API_KEY", "PLAYER_ID", "https://dev-api.carterapi.com", onConnect, onDisconnect, onMessage, onVoice);
-        mika.listen();
     }
 
     void Update()
