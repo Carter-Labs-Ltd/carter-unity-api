@@ -34,11 +34,9 @@ public class Listener : MonoBehaviour
         if (isRecording)
         {
             isRecording = false;
-            int length = Microphone.GetPosition(null);
             Microphone.End(null);
             byte[] bytes = WavUtility.FromAudioClip(audioSource.clip);
             string base64 = Convert.ToBase64String(bytes);
-            
             return base64;
         }
 
