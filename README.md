@@ -20,12 +20,16 @@ Then install the Carter Package! To do this, go to: Window -> Package Manager ->
 
 Getting started with Carter is easy. First configure your agent [here](https://studio.carterlabs.ai). Once you've got your agent's API Key come back here and add Carter to your game as below.
 
+### Text Based Chat
+
 ```...
 using Carter;
 
 public class MyExampleScript : MonoBehaviour
 {
-    private Agent mika;
+    Agent mika;
+
+    // Define Event Handlers //
 
     void onConnect(){
         Debug.Log("Connected to agent!");
@@ -39,9 +43,14 @@ public class MyExampleScript : MonoBehaviour
         Debug.Log("Message from agent: " + message);
     }
 
+    void onVoice(string audioId){
+        // Make your agent speak the response!
+        mika.say(audioId);
+    }
+
     void Start()
     {
-        mika = new Agent("APIKEY", "PLAYERID", "https://api.carterapi.com", onConnect, onDisconnect, onMessage);
+        mika = new Agent("APIKEY", "PLAYERID", "https://api.carterapi.com", onConnect, onDisconnect, onMessage, onVoice);
     }
 
     void Update()
@@ -57,6 +66,59 @@ public class MyExampleScript : MonoBehaviour
         mika.connect(); // reconnect
 
         mika.disconnect(); // disconnect
+    }
+}
+```
+
+### Text Based Chat
+
+```...
+using Carter;
+
+public class MyExampleScript : MonoBehaviour
+{
+    Agent mika;
+
+    // Define Event Handlers //
+
+    void onConnect(){
+        Debug.Log("Connected to agent!");
+    }
+
+    void onDisconnect(){
+        Debug.Log("Disconnected from agent!");
+    }
+
+    void onMessage(string message){
+        Debug.Log("Message from agent: " + message);
+    }
+
+    void onVoice(string audioId){
+        // Make your agent speak the response!
+        mika.say(audioId);
+    }
+
+    void Start()
+    {
+        mika = gameObject.AddComponent<Agent>();
+        mika.init("API_KEY", "PLAYER_ID", "https://dev-api.carterapi.com", onConnect, onDisconnect, onMessage, onVoice);
+        mika.listen();
+    }
+
+    void Update()
+    {
+        if (Input.GetKey("space"))
+        {
+            // start recording audio (won't trigger more than once before stopRecording() is called)
+            mika.listen();
+        }
+
+        if (!Input.GetKey("space"))
+        {
+            // stop recording audio and send to agent
+            mika.sendAudio();
+        }
+
     }
 }
 ```

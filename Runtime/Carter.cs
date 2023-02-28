@@ -6,11 +6,17 @@ using System.Collections.Generic;
 using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 
+
+using UnityEngine.Networking;
+using System.Collections;
+
+
 namespace Carter {
 
     [System.Serializable]
     class AgentOutput {
         public string text;
+        public string audio;
     }
 
     [System.Serializable]
@@ -19,94 +25,161 @@ namespace Carter {
         public string input;
     }
 
-    public class Agent
+    public class Agent : MonoBehaviour
     {
         public SocketIOUnity socket;
 
-            public string url { get; set; }
-            public string apiKey { get; set; }
-            public string playerId { get; set; }
-            public string agentId { get; set; }
+        public string url { get; set; }
+        public string apiKey { get; set; }
+        public string playerId { get; set; }
+        public string agentId { get; set; }
 
-            public Boolean connected { get; set; }
+        public Boolean connected { get; set; }
+        public Boolean voice = true;
 
-            public delegate void OnMessage(string message);
+        public delegate void OnMessage(string message);
+        public delegate void OnConnect();
+        public delegate void OnDisconnect();
+        public delegate void OnVoice(string audioId);
 
-            Action onConnect { get; set;}
-            Action onDisconnect { get; set;}
-            OnMessage onMessage { get; set;}
+        OnConnect onConnect { get; set;}
+        OnDisconnect onDisconnect { get; set;}
+        OnMessage onMessage { get; set;}
+        OnVoice onVoice { get; set;}
+        Listener listener;
 
-            public Agent(string apiKey, string playerId, string url, Action onConnect, Action onDisconnect, OnMessage onMessage )
+
+        public void Start(){
+            listener = gameObject.AddComponent<Listener>();
+        }
+
+
+        public void init(string apiKey, string playerId, string url, OnConnect onConnect, OnDisconnect onDisconnect, OnMessage onMessage, OnVoice onVoice)
+        {
+            this.apiKey = apiKey;
+            this.agentId = agentId;
+            this.url = url;
+            this.playerId = playerId;
+            this.onConnect = onConnect;
+            this.onDisconnect = onDisconnect;
+            this.onMessage = onMessage;
+            this.onVoice = onVoice;
+
+            connect();
+        }
+
+        public void connect()
+        {
+
+            var uri = new Uri(url);
+            socket = new SocketIOUnity(uri, new SocketIOOptions
             {
-                this.apiKey = apiKey;
-                this.agentId = agentId;
-                this.url = url;
-                this.playerId = playerId;
-                this.onConnect = onConnect;
-                this.onDisconnect = onDisconnect;
-                this.onMessage = onMessage;
+                Query = new Dictionary<string, string>
+                    {
+                        {"token", "UNITY" }
+                    }
+                ,
+                Transport = SocketIOClient.Transport.TransportProtocol.WebSocket
+            });
 
+            socket.JsonSerializer = new NewtonsoftJsonSerializer();
 
-                connect();
-            }
-
-            public void connect()
+            socket.OnConnected += (sender, e) =>
             {
+                connected = true;
+                onConnect();
+            };
 
-                var uri = new Uri(url);
-                socket = new SocketIOUnity(uri, new SocketIOOptions
-                {
-                    Query = new Dictionary<string, string>
-                        {
-                            {"token", "UNITY" }
-                        }                  
-                    ,
-                    Transport = SocketIOClient.Transport.TransportProtocol.WebSocket
-                });
+            socket.OnDisconnected += (sender, e) =>
+            {
+                connected = false;
+                onDisconnect();
+            };
 
-                socket.JsonSerializer = new NewtonsoftJsonSerializer();
+            socket.OnUnityThread("message", (data) =>
+            {
+                AgentResponse response = data.GetValue<AgentResponse>();
 
-                socket.OnConnected += (sender, e) =>
-                {
-                    Debug.Log("socket.OnConnected"); 
+                if(voice == true){
+                    onVoice(response.output.audio);
+                }
 
-                    // set connected
-                    connected = true;
-
-                    onConnect();
-                };
-
-                socket.OnDisconnected += (sender, e) =>
-                {
-                    Debug.Log("socket.OnDisconnected");
-                    connected = false;
-                    onDisconnect();
-                };
+                onMessage(response.output.text);
+            });
 
 
-                socket.Connect();
+            socket.Connect();
 
-                socket.OnUnityThread("message", (data) =>
-                {
-                    AgentResponse response = data.GetValue<AgentResponse>();
-                    onMessage(response.output.text);
-                });
+        }
 
+        public void disconnect() {
+            socket.Disconnect();
+        }
+
+        public void send(string message) {
+            if (socket == null) {
+                Debug.Log("Error sending message, socket is null");
+                return;
+            } else {
+                socket.EmitStringAsJSON("message", "{\"text\": \"" + message + "\", \"apiKey\": \"" + this.apiKey + "\", \"playerId\": \"" + this.playerId + "\"}");
             }
+        }
 
-            public void disconnect() {
-                socket.Disconnect();
-            }
 
-            public void send(string message) {
+        // AUDIO //
+
+        public void listen(){
+            listener.StartListening();
+        }
+
+        public string stopListening(){
+            return listener.StopListening();
+        }
+
+        public void say(string audioId){
+            StartCoroutine(PlayAudio(url + "/speak/" + audioId));
+        }
+
+        public void sendAudio(){
+
+            string base64 = stopListening();
+
+            if(base64 != null){
+                Debug.Log("Sending audio");
+
                 if (socket == null) {
-                    Debug.Log("Socket is null");
+                    Debug.Log("Error sending message, socket is null");
                     return;
                 } else {
-                    Debug.Log("Socket is not null");
-
-                    socket.EmitStringAsJSON("message", "{\"text\": \"" + message + "\", \"apiKey\": \"" + this.apiKey + "\", \"playerId\": \"" + this.playerId + "\"}");
+                    socket.EmitStringAsJSON("voice_message", "{\"audio\": \"" + base64 + "\", \"apiKey\": \"" + this.apiKey + "\", \"playerId\": \"" + this.playerId + "\"}");
                 }
             }
+        }
+
+        public IEnumerator PlayAudio(string url)
+        {
+            Debug.Log("Playing audio from: " + url);
+        
+            using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.MPEG))
+            {
+                yield return www.SendWebRequest();
+
+                if (www.result == UnityWebRequest.Result.ConnectionError)
+                {
+                    Debug.Log(www.error);
+                }
+                else
+                {
+                    // Debug.Log("Playing audio");
+                    AudioClip myClip = DownloadHandlerAudioClip.GetContent(www);
+                    AudioSource audioSource2 = gameObject.AddComponent<AudioSource>();
+                    audioSource2.clip = myClip;
+                    audioSource2.Play();
+                    www.Dispose();
+                }
+            }
+        }
+
+
     }
 }
