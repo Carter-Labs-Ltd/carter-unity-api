@@ -25,6 +25,7 @@ namespace Carter {
         public string input;
     }
 
+
     public class Agent : MonoBehaviour
     {
         public SocketIOUnity socket;
@@ -45,6 +46,7 @@ namespace Carter {
         OnConnect onConnect { get; set;}
         OnDisconnect onDisconnect { get; set;}
         OnMessage onMessage { get; set;}
+        OnMessage onDictate { get; set;}
         OnVoice onVoice { get; set;}
         Listener listener;
 
@@ -54,7 +56,7 @@ namespace Carter {
         }
 
 
-        public void init(string apiKey, string playerId, string url, OnConnect onConnect, OnDisconnect onDisconnect, OnMessage onMessage, OnVoice onVoice)
+        public void init(string apiKey, string playerId, string url, OnConnect onConnect, OnDisconnect onDisconnect, OnMessage onMessage, OnVoice onVoice, OnMessage onDictate = null)
         {
             this.apiKey = apiKey;
             this.agentId = agentId;
@@ -64,6 +66,7 @@ namespace Carter {
             this.onDisconnect = onDisconnect;
             this.onMessage = onMessage;
             this.onVoice = onVoice;
+            this.onDictate = onDictate;
 
             connect();
         }
@@ -105,6 +108,12 @@ namespace Carter {
                 }
 
                 onMessage(response.output.text);
+            });
+
+            socket.OnUnityThread("dictate", (data) =>
+            {
+                Debug.Log(data.GetValue<string>());
+                onDictate(data.GetValue<string>());
             });
 
 
