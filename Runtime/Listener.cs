@@ -14,20 +14,40 @@ public class Listener : MonoBehaviour
     public void Initialize(){
 
         // if class Microhpone exists, set microphoneAccess to True
+        if (typeof(Microphone).IsClass)
+        {
+            microphoneAccess = true;
+        }
+        else
+        {
+            microphoneAccess = false;
+        }
         
 
     }
 
     void Start(){
+        Initialize();
+        if(!microphoneAccess)
+        {
+            Debug.Log("Microphone access not granted");
+            return;
+        }
         Debug.Log("Listening...");
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = Microphone.Start(null, true, 1, 16000);
         audioSource.Play();
         Invoke("ResizeRecording", 1);
+          
     }
 
     public void StartListening()
     {
+        if(!microphoneAccess)
+        {
+            Debug.Log("Microphone access not granted");
+            return;
+        }
         if(!isRecording)
         {                     
             isRecording = true;
@@ -40,6 +60,12 @@ public class Listener : MonoBehaviour
     }
 
     public string StopListening(){
+        if(!microphoneAccess)
+        {
+            Debug.Log("Microphone access not granted");
+            return;
+        }
+
         if (isRecording)
         {
             isRecording = false;
@@ -54,6 +80,11 @@ public class Listener : MonoBehaviour
 
     void ResizeRecording()
     {
+        if(!microphoneAccess)
+        {
+            Debug.Log("Microphone access not granted");
+            return;
+        }
         if (isRecording)
         {
             int length = frameRate;
