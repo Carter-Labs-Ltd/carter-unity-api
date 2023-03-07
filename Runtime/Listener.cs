@@ -9,6 +9,14 @@ public class Listener : MonoBehaviour
     bool isRecording = false;
     AudioSource audioSource;
     List<float> tempRecording = new List<float>();
+    bool microphoneAccess;
+
+    public void Initialize(){
+
+        // if class Microhpone exists, set microphoneAccess to True
+        
+
+    }
 
     void Start(){
         Debug.Log("Listening...");
