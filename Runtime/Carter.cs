@@ -71,7 +71,6 @@ namespace Carter {
             connect();
         }
 
-        public 
 
         public void connect()
         {
