@@ -63,7 +63,7 @@ public class Listener : MonoBehaviour
         if(!microphoneAccess)
         {
             Debug.Log("Microphone access not granted");
-            return;
+            return null;
         }
 
         if (isRecording)
