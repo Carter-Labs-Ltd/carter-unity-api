@@ -11,7 +11,7 @@ public class Listener : MonoBehaviour
     List<float> tempRecording = new List<float>();
 
     void Start(){
-        Debug.Log('Listening...');
+        Debug.Log("Listening...");
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = Microphone.Start(null, true, 1, 16000);
         audioSource.Play();
