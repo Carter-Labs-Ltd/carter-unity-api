@@ -51,7 +51,7 @@ namespace Carter {
         Listener listener;
 
 
-        public void Start(){
+        public void StartListening(){
             listener = gameObject.AddComponent<Listener>();
         }
 
@@ -70,6 +70,8 @@ namespace Carter {
 
             connect();
         }
+
+        public 
 
         public void connect()
         {

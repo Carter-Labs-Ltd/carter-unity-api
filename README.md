@@ -103,6 +103,7 @@ public class MyExampleScript : MonoBehaviour
     {
         mika = gameObject.AddComponent<Agent>();
         mika.init("API_KEY", "PLAYER_ID", "https://dev-api.carterapi.com", onConnect, onDisconnect, onMessage, onVoice);
+        mika.StartListening(); //activate microphone access
     }
 
     void Update()
