@@ -81,14 +81,10 @@ namespace Carter {
             var uri = new Uri(url);
             socket = new SocketIOUnity(uri, new SocketIOOptions
             {
-                Query = new Dictionary<string, string>
+                ExtraHeaders = new Dictionary<string, string>
                     {
-                        {
-                            "key", this.apiKey
-                        },
-                        {
-                            "player", this.playerId
-                        }
+                        ["key"] = this.apiKey,
+                        ["player"] = this.playerId
                     }
                 ,
                 Transport = SocketIOClient.Transport.TransportProtocol.WebSocket
