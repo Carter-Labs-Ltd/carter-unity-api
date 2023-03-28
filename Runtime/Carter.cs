@@ -84,7 +84,7 @@ namespace Carter {
                 Query = new Dictionary<string, string>
                     {
                         {
-                            "key": this.apiKey, 
+                            "key": this.apiKey,
                             "player": this.playerId
                         }
                     }
@@ -119,7 +119,7 @@ namespace Carter {
 
             socket.OnUnityThread("hash", (data) =>
             {
-                hash = data
+                hash = data;
             });
 
 
