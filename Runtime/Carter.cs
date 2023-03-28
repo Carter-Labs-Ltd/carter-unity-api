@@ -34,6 +34,7 @@ namespace Carter {
         public string apiKey { get; set; }
         public string playerId { get; set; }
         public string agentId { get; set; }
+        public string hash {get;set;}
 
         public Boolean connected { get; set; }
         public Boolean voice = true;
@@ -49,6 +50,8 @@ namespace Carter {
         OnMessage onDictate { get; set;}
         OnVoice onVoice { get; set;}
         Listener listener;
+
+
 
 
         public void StartListening(){
@@ -67,7 +70,7 @@ namespace Carter {
             this.onMessage = onMessage;
             this.onVoice = onVoice;
             this.onDictate = onDictate;
-
+            
             connect();
         }
 
@@ -80,7 +83,10 @@ namespace Carter {
             {
                 Query = new Dictionary<string, string>
                     {
-                        {"token", "UNITY" }
+                        {
+                            "key": this.apiKey, 
+                            "player": this.playerId
+                        }
                     }
                 ,
                 Transport = SocketIOClient.Transport.TransportProtocol.WebSocket
@@ -111,6 +117,12 @@ namespace Carter {
                 onMessage(response.output.text);
             });
 
+            socket.OnUnityThread("hash", (data) =>
+            {
+                hash = data
+            });
+
+
             socket.OnUnityThread("dictate", (data) =>
             {
                 Debug.Log(data.GetValue<string>());
@@ -131,7 +143,7 @@ namespace Carter {
                 Debug.Log("Error sending message, socket is null");
                 return;
             } else {
-                socket.EmitStringAsJSON("message", "{\"text\": \"" + message + "\", \"apiKey\": \"" + this.apiKey + "\", \"playerId\": \"" + this.playerId + "\"}");
+                socket.EmitStringAsJSON("message", "{\"text\": \"" + message + "\", \"hash\": \"" + hash + "\", }");
             }
         }
 
