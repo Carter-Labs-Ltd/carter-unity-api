@@ -118,7 +118,7 @@ namespace Carter {
             socket.OnUnityThread("hash", (data) =>
             {
                 Debug.Log(data);
-                hash = data.ToString()
+                hash = data.ToString();
             });
 
 
