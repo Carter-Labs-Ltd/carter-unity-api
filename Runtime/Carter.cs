@@ -142,7 +142,8 @@ namespace Carter {
                 Debug.Log("Error sending message, socket is null");
                 return;
             } else {
-                socket.EmitStringAsJSON("message", "{\"text\": \"" + message + "\", \"hash\": \"" + hash + "\", }");
+                Debug.Log("{\"text\": \"" + message + "\", \"hash\": \"" + hash + "\" }");
+                socket.EmitStringAsJSON("message", "{\"text\": \"" + message + "\", \"hash\": \"" + hash + "\" }");
             }
         }
 
