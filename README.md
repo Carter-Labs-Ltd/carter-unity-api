@@ -6,15 +6,10 @@ Make your game characters talk in minutes with next generation artificial intell
 
 ## Installation
 
-This package uses the web socket protocol under the hood. To get started you will first need to install [SocketIOUnity](https://github.com/itisnajim/SocketIOUnity):
+This package supports our more robust REST API for lightweight and nimble projects.
 
 To do this, go to: Window -> Package Manager -> Click the (+) add package from git URL -> Paste:
-
-`https://github.com/itisnajim/SocketIOUnity.git`
-
-Then install the Carter Package! To do this, go to: Window -> Package Manager -> Click the (+) add package from git URL -> Paste:
-
-`https://github.com/Carter-Labs-Ltd/carter-unity.git`
+`https://github.com/Carter-Labs-Ltd/carter-unity-api.git`
 
 ## Usage
 
@@ -27,102 +22,30 @@ using Carter;
 
 public class MyExampleScript : MonoBehaviour
 {
-    Agent mika;
-
-    // Define Event Handlers //
-
-    void onConnect(){
-        Debug.Log("Connected to agent!");
-    }
-
-    void onDisconnect(){
-        Debug.Log("Disconnected from agent!");
-    }
-
-    void onMessage(string message){
-        Debug.Log("Message from agent: " + message);
-    }
-
-    void onVoice(string audioId){
-        // Make your agent speak the response!
-        mika.say(audioId);
-    }
+    Agent myAgent;
 
     void Start()
     {
-        mika = gameObject.AddComponent<Agent>();
-        mika.init("API_KEY", "PLAYER_ID", "https://dev-api.carterapi.com", onConnect, onDisconnect, onMessage, onVoice);
-    }
+        myAgent = gameObject.AddComponent<Agent>();
+        myAgent.url = "https://api.carterlabs.ai/chat";
+        myAgent.key = "YOUR API KEY";
+        myAgent.playerId = "UNIQUE PLAYER ID (can be anything you want!)";
+        myAgent.onMessage += (ApiResponse response) => {
+            Debug.Log("Input: " + response.input);
+            Debug.Log("Output Text: " + response.output.text);
 
-    void Update()
-    {
-        // ... on button click etc
-        mika.send("Hello");
-
-
-        // ... OTHER OPTIONS
-
-        mika.connected // true/false
-
-        mika.connect(); // reconnect
-
-        mika.disconnect(); // disconnect
+            foreach (ForcedBehaviour fb in response.forced_behaviours) {
+                Debug.Log("Forced Behaviour: " + fb.name);
+            }
+        };
+        myAgent.Interact("Wake up!");
     }
 }
 ```
 
 ### Voice Based Chat
 
-```...
-using Carter;
-
-public class MyExampleScript : MonoBehaviour
-{
-    Agent mika;
-
-    // Define Event Handlers //
-
-    void onConnect(){
-        Debug.Log("Connected to agent!");
-    }
-
-    void onDisconnect(){
-        Debug.Log("Disconnected from agent!");
-    }
-
-    void onMessage(string message){
-        Debug.Log("Message from agent: " + message);
-    }
-
-    void onVoice(string audioId){
-        // Make your agent speak the response!
-        mika.say(audioId);
-    }
-
-    void Start()
-    {
-        mika = gameObject.AddComponent<Agent>();
-        mika.init("API_KEY", "PLAYER_ID", "https://dev-api.carterapi.com", onConnect, onDisconnect, onMessage, onVoice);
-        mika.StartListening(); //activate microphone access
-    }
-
-    void Update()
-    {
-        if (Input.GetKey("space"))
-        {
-            // start recording audio (won't trigger more than once before stopRecording() is called)
-            mika.listen();
-        }
-
-        if (!Input.GetKey("space"))
-        {
-            // stop recording audio and send to agent
-            mika.sendAudio();
-        }
-
-    }
-}
-```
+NOT YET SUPPORTED
 
 [Further Documentation](https://carterapi.gitbook.io/carter-docs/)
 
