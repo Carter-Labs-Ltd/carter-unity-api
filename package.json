@@ -8,9 +8,7 @@
     "documentationUrl": "https://example.com/",
     "changelogUrl": "https://example.com/changelog.html",
     "licensesUrl": "https://example.com/licensing.html",
-    "dependencies": {
-        "com.itisnajim.socketiounity": "1.1.4"
-    },
+    "dependencies": {},
     "author": {
         "name": "Carter Labs",
         "email": "hello@carterapi.com",
