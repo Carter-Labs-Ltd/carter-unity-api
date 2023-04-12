@@ -1,5 +1,7 @@
-using System.Collections;
+using System;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.Networking;
 
 namespace Carter {
@@ -22,6 +24,11 @@ namespace Carter {
     }
 
     [System.Serializable]
+    public class SpeakOutput {
+        public string file_url;
+    }
+
+    [System.Serializable]
     public class Agent : MonoBehaviour
     {
         public string url;
@@ -30,13 +37,26 @@ namespace Carter {
 
         public delegate void MessageEventHandler(ApiResponse response);
         public event MessageEventHandler onMessage;
-
+        
+        Listener listener;
 
         [System.Serializable]
         public class Message {
             public string key;
             public string playerId;
             public string text;
+        }
+
+        [System.Serializable]
+        public class AudioMessage {
+            public string key;
+            public string playerId;
+            public string audio;
+        }
+
+        public void StartListening()
+        {
+            listener = gameObject.AddComponent<Listener>();
         }
 
         private void HandleApiResponse(ApiResponse apiResponse) {
@@ -48,14 +68,9 @@ namespace Carter {
             StartCoroutine(SendJsonRequest(message));
         }
 
-        IEnumerator SendJsonRequest(string message) {
-            Message msg = new Message {
-                key = this.key,
-                playerId = this.playerId,
-                text = message
-            };
-            string json = JsonUtility.ToJson(msg);
-
+        IEnumerator SendJsonRequest(string message, bool audio = false) {
+            string json = CreateMessageJson(message, audio);
+            
             using (UnityWebRequest www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST)) {
                 www.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
                 www.downloadHandler = new DownloadHandlerBuffer();
@@ -66,10 +81,200 @@ namespace Carter {
                 if (www.result != UnityWebRequest.Result.Success) {
                     Debug.Log(www.error);
                 } else {
-                    ApiResponse apiResponse = JsonUtility.FromJson<ApiResponse>(www.downloadHandler.text);
-                    HandleApiResponse(apiResponse);
+                    try {
+                        ApiResponse apiResponse = JsonUtility.FromJson<ApiResponse>(www.downloadHandler.text);
+                        HandleApiResponse(apiResponse);
+                    } catch (Exception e) {
+                        Debug.Log("Error parsing response: " + e);
+                        Debug.Log("Response: " + www.downloadHandler.text);
+                    }
                 }
             }
         }
+
+        private string CreateMessageJson(string message, bool audio) {
+            if (audio) {
+                AudioMessage msg = new AudioMessage {
+                    key = this.key,
+                    playerId = this.playerId,
+                    audio = message
+                };
+                return JsonUtility.ToJson(msg);
+            } else {
+                Message msg = new Message {
+                    key = this.key,
+                    playerId = this.playerId,
+                    text = message
+                };
+                return JsonUtility.ToJson(msg);
+            }
+        }
+
+
+        //audio stuff
+        public void listen(){
+            listener.StartListening();
+        }
+
+        public string stopListening(){
+            return listener.StopListening();
+        }
+
+
+        public void say(string toSay, string gender = "female"){
+            StartCoroutine(PlayAudio(toSay, gender));
+        }
+
+        public void sendAudio(){
+
+            string base64 = stopListening();
+
+            if(base64 != null){
+                Debug.Log("Sending audio");
+                Debug.Log("Sending message: " + base64);
+                StartCoroutine(SendJsonRequest(base64, true));
+            }
+        }
+
+        public IEnumerator PlayAudio(string toSay, string gender = "female")
+        {
+            // make toSay url safe
+            toSay = UnityWebRequest.EscapeURL(toSay);
+            string audio_url = "https://api.carterlabs.ai/speak/" + gender + "/" + toSay + "/" + key;
+            Debug.Log(audio_url);
+            using (UnityWebRequest www = new UnityWebRequest(audio_url  , UnityWebRequest.kHttpVerbGET)) {
+                // www.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
+                www.downloadHandler = new DownloadHandlerBuffer();
+                www.SetRequestHeader("Content-Type", "application/json");
+
+                yield return www.SendWebRequest();
+
+                if (www.result != UnityWebRequest.Result.Success) {
+                    Debug.Log(www.error);
+                } else {
+                   
+                    SpeakOutput speakOutput = JsonUtility.FromJson<SpeakOutput>(www.downloadHandler.text);
+                    using (UnityWebRequest www2 = UnityWebRequestMultimedia.GetAudioClip(speakOutput.file_url, AudioType.MPEG))
+                    {
+                        yield return www2.SendWebRequest();
+
+                        if (www2.result == UnityWebRequest.Result.ConnectionError)
+                        {
+                            Debug.Log(www2.error);
+                        }
+                        else
+                        {
+                            AudioClip myClip = DownloadHandlerAudioClip.GetContent(www2);
+                            AudioSource audioSource2 = gameObject.AddComponent<AudioSource>();
+                            audioSource2.clip = myClip;
+                            audioSource2.Play();
+                            www2.Dispose();
+                        }
+                    }
+                    www.Dispose();
+                   
+
+                }
+
+            }
+        
+          
+        }
+    }
+      
+    public class Listener : MonoBehaviour
+    {
+        int frameRate = 16000;
+        bool isRecording = false;
+        AudioSource audioSource;
+        List<float> tempRecording = new List<float>();
+        bool microphoneAccess;
+
+        public void Initialize(){
+
+            // if class Microhpone exists, set microphoneAccess to True
+            if (typeof(Microphone).IsClass)
+            {
+                microphoneAccess = true;
+            }
+            else
+            {
+                microphoneAccess = false;
+            }
+            
+
+        }
+
+        void Start(){
+            Initialize();
+            if(!microphoneAccess)
+            {
+                Debug.Log("Microphone access not granted");
+                return;
+            }
+            Debug.Log("Listening...");
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.clip = Microphone.Start(null, true, 1, 16000);
+            audioSource.Play();
+            Invoke("ResizeRecording", 1);
+            
+        }
+
+        public void StartListening()
+        {
+            if(!microphoneAccess)
+            {
+                Debug.Log("Microphone access not granted");
+                return;
+            }
+            if(!isRecording)
+            {                     
+                isRecording = true;
+                audioSource.Stop();
+                tempRecording.Clear();
+                Microphone.End(null);
+                audioSource.clip = Microphone.Start(null, true, 20, frameRate);
+                Invoke("ResizeRecording", 1);
+            } 
+        }
+
+        public string StopListening(){
+            if(!microphoneAccess)
+            {
+                Debug.Log("Microphone access not granted");
+                return null;
+            }
+
+            if (isRecording)
+            {
+                isRecording = false;
+                Microphone.End(null);
+                byte[] bytes = WavUtility.FromAudioClip(audioSource.clip);
+                string base64 = Convert.ToBase64String(bytes);
+                return base64;
+            }
+
+            return null;
+        }
+
+        void ResizeRecording()
+        {
+            if(!microphoneAccess)
+            {
+                Debug.Log("Microphone access not granted");
+                return;
+            }
+            if (isRecording)
+            {
+                int length = frameRate;
+                float[] clipData = new float[length];
+                audioSource.clip.GetData(clipData, 0);
+                tempRecording.AddRange(clipData);
+                Invoke("ResizeRecording", 1);
+            }
+        }
+
+    
+
     }
 }
