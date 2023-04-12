@@ -37,6 +37,7 @@ public class MyExampleScript : MonoBehaviour
             foreach (ForcedBehaviour fb in response.forced_behaviours) {
                 Debug.Log("Forced Behaviour: " + fb.name);
             }
+
         };
         myAgent.Interact("Wake up!");
     }
@@ -45,7 +46,43 @@ public class MyExampleScript : MonoBehaviour
 
 ### Voice Based Chat
 
-NOT YET SUPPORTED
+````using Carter;
+
+public class MyExampleScript : MonoBehaviour
+{
+    Agent myAgent;
+
+    void Start()
+    {
+        myAgent = gameObject.AddComponent<Agent>();
+        myAgent.url = "https://api.carterlabs.ai/chat";
+        myAgent.key = "YOUR API KEY";
+        myAgent.playerId = "UNIQUE PLAYER ID (can be anything you want!)";
+        myAgent.onMessage += (ApiResponse response) => {
+            Debug.Log("Input: " + response.input);
+            Debug.Log("Output Text: " + response.output.text);
+
+            myAgent.say(response.output.text, "male");
+            foreach (ForcedBehaviour fb in response.forced_behaviours) {
+                Debug.Log("Forced Behaviour: " + fb.name);
+            }
+        };
+        myAgent.StartListening();
+    }
+
+    void Update()
+    {
+        if (Input.GetKey("space"))
+        {
+            myAgent.listen();
+        }
+
+        if (!Input.GetKey("space"))
+        {
+            myAgent.sendAudio();
+        }
+    }
+}```
 
 [Further Documentation](https://carterapi.gitbook.io/carter-docs/)
 
@@ -56,3 +93,4 @@ Join our awesome [Discord community](https://discord.gg/YqWwCVU8UH).
 Follow us on [TikTok](https://www.tiktok.com/@carterlabs)
 
 Binge & Learn on [YouTube](https://www.youtube.com/@Carter_Labs)
+````
