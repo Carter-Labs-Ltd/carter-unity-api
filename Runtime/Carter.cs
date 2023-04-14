@@ -138,44 +138,24 @@ namespace Carter {
 
         public IEnumerator PlayAudio(string toSay, string gender = "female")
         {
-            // make toSay url safe
-            toSay = UnityWebRequest.EscapeURL(toSay);
-            string audio_url = "https://api.carterlabs.ai/speak/" + gender + "/" + toSay + "/" + key;
-            Debug.Log(audio_url);
-            using (UnityWebRequest www = new UnityWebRequest(audio_url  , UnityWebRequest.kHttpVerbGET)) {
-                // www.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
-                www.downloadHandler = new DownloadHandlerBuffer();
-                www.SetRequestHeader("Content-Type", "application/json");
+            using (UnityWebRequest www2 = UnityWebRequestMultimedia.GetAudioClip(toSay, AudioType.MPEG))
+            {
+                yield return www2.SendWebRequest();
 
-                yield return www.SendWebRequest();
-
-                if (www.result != UnityWebRequest.Result.Success) {
-                    Debug.Log(www.error);
-                } else {
-                   
-                    SpeakOutput speakOutput = JsonUtility.FromJson<SpeakOutput>(www.downloadHandler.text);
-                    using (UnityWebRequest www2 = UnityWebRequestMultimedia.GetAudioClip(speakOutput.file_url, AudioType.MPEG))
-                    {
-                        yield return www2.SendWebRequest();
-
-                        if (www2.result == UnityWebRequest.Result.ConnectionError)
-                        {
-                            Debug.Log(www2.error);
-                        }
-                        else
-                        {
-                            AudioClip myClip = DownloadHandlerAudioClip.GetContent(www2);
-                            AudioSource audioSource2 = gameObject.AddComponent<AudioSource>();
-                            audioSource2.clip = myClip;
-                            audioSource2.Play();
-                            www2.Dispose();
-                        }
-                    }
-                    www.Dispose();
-                   
-
+                if (www2.result == UnityWebRequest.Result.ConnectionError)
+                {
+                    Debug.Log(www2.error);
                 }
-
+                else
+                {
+                    AudioClip myClip = DownloadHandlerAudioClip.GetContent(www2);
+                    AudioSource audioSource2 = gameObject.AddComponent<AudioSource>();
+                    audioSource2.clip = myClip;
+                    audioSource2.Play();
+                    www2.Dispose();
+                }
+            }
+            
             }
         
           

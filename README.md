@@ -62,7 +62,7 @@ public class MyExampleScript : MonoBehaviour
             Debug.Log("Input: " + response.input);
             Debug.Log("Output Text: " + response.output.text);
 
-            myAgent.say(response.output.text, "male");
+            myAgent.say(response.output.audio, "male");
             foreach (ForcedBehaviour fb in response.forced_behaviours) {
                 Debug.Log("Forced Behaviour: " + fb.name);
             }
