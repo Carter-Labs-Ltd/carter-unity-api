@@ -19,7 +19,7 @@ namespace Carter {
 
     [System.Serializable]
     public class Output {
-        public bool audio;
+        public string audio;
         public string text;
     }
 
