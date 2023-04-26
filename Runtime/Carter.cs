@@ -39,6 +39,7 @@ namespace Carter {
         public event MessageEventHandler onMessage;
         
         Listener listener;
+        AudioSource audioSource2;
 
         [System.Serializable]
         public class Message {
@@ -140,6 +141,15 @@ namespace Carter {
         {
             using (UnityWebRequest www2 = UnityWebRequestMultimedia.GetAudioClip(toSay, AudioType.MPEG))
             {
+                if(audioSource2 == null)
+                {
+                    audioSource2 = gameObject.GetComponent<AudioSource>();
+                    if(audioSource2 == null)
+                    {
+                        audioSource2 = gameObject.AddComponent<AudioSource>();
+                    }
+                }
+
                 yield return www2.SendWebRequest();
 
                 if (www2.result == UnityWebRequest.Result.ConnectionError)
@@ -148,17 +158,14 @@ namespace Carter {
                 }
                 else
                 {
+                    audioSource2.Stop();
                     AudioClip myClip = DownloadHandlerAudioClip.GetContent(www2);
-                    AudioSource audioSource2 = gameObject.AddComponent<AudioSource>();
+                    audioSource2 = gameObject.AddComponent<AudioSource>();
                     audioSource2.clip = myClip;
                     audioSource2.Play();
                     www2.Dispose();
                 }
-            }
-            
-            
-        
-          
+            }     
         }
     }
       
