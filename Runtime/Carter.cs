@@ -143,11 +143,7 @@ namespace Carter {
             {
                 if(audioSource2 == null)
                 {
-                    audioSource2 = gameObject.GetComponent<AudioSource>();
-                    if(audioSource2 == null)
-                    {
-                        audioSource2 = gameObject.AddComponent<AudioSource>();
-                    }
+                    audioSource2 = gameObject.AddComponent<AudioSource>();
                 }
 
                 yield return www2.SendWebRequest();
