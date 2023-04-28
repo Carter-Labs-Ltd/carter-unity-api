@@ -35,7 +35,7 @@ namespace Carter {
         public string key;
         public string playerId;
 
-        public delegate void MessageEventHandler(ApiResponse response);
+        public delegate void MessageEventHandler(ApiResponse response, bool audio);
         public event MessageEventHandler onMessage;
         
         Listener listener;
@@ -60,8 +60,8 @@ namespace Carter {
             listener = gameObject.AddComponent<Listener>();
         }
 
-        private void HandleApiResponse(ApiResponse apiResponse) {
-            onMessage?.Invoke(apiResponse);
+        private void HandleApiResponse(ApiResponse apiResponse, bool audio) {
+            onMessage?.Invoke(apiResponse, audio);
         }
 
         public void Interact(string message) {
@@ -84,7 +84,7 @@ namespace Carter {
                 } else {
                     try {
                         ApiResponse apiResponse = JsonUtility.FromJson<ApiResponse>(www.downloadHandler.text);
-                        HandleApiResponse(apiResponse);
+                        HandleApiResponse(apiResponse, audio);
                     } catch (Exception e) {
                         Debug.Log("Error parsing response: " + e);
                         Debug.Log("Response: " + www.downloadHandler.text);
