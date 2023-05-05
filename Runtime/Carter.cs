@@ -160,7 +160,6 @@ namespace Carter {
                 {
                     audioSource2.Stop();
                     AudioClip myClip = DownloadHandlerAudioClip.GetContent(www2);
-                    audioSource2 = gameObject.AddComponent<AudioSource>();
                     audioSource2.clip = myClip;
                     audioSource2.Play();
                     www2.Dispose();
