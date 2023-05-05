@@ -46,6 +46,7 @@ namespace Carter {
             public string key;
             public string playerId;
             public string text;
+            public bool speak;
         }
 
         [System.Serializable]
@@ -53,6 +54,7 @@ namespace Carter {
             public string key;
             public string playerId;
             public string audio;
+            public bool speak;
         }
 
         public void StartListening()
@@ -64,13 +66,13 @@ namespace Carter {
             onMessage?.Invoke(apiResponse, audio);
         }
 
-        public void Interact(string message) {
+        public void Interact(string message, bool speak = true) {
             Debug.Log("Sending message: " + message);
-            StartCoroutine(SendJsonRequest(message));
+            StartCoroutine(SendJsonRequest(message, false, speak));
         }
 
-        IEnumerator SendJsonRequest(string message, bool audio = false) {
-            string json = CreateMessageJson(message, audio);
+        IEnumerator SendJsonRequest(string message, bool audio = false, bool speak = true) {
+            string json = CreateMessageJson(message, audio, speak);
             
             using (UnityWebRequest www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST)) {
                 www.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
@@ -93,19 +95,21 @@ namespace Carter {
             }
         }
 
-        private string CreateMessageJson(string message, bool audio) {
+        private string CreateMessageJson(string message, bool audio, bool speak) {
             if (audio) {
                 AudioMessage msg = new AudioMessage {
                     key = this.key,
                     playerId = this.playerId,
-                    audio = message
+                    audio = message,
+                    speak = speak
                 };
                 return JsonUtility.ToJson(msg);
             } else {
                 Message msg = new Message {
                     key = this.key,
                     playerId = this.playerId,
-                    text = message
+                    text = message,
+                    speak = speak
                 };
                 return JsonUtility.ToJson(msg);
             }
@@ -126,14 +130,14 @@ namespace Carter {
             StartCoroutine(PlayAudio(toSay, gender));
         }
 
-        public void sendAudio(){
+        public void sendAudio(bool speak = true){
 
             string base64 = stopListening();
 
             if(base64 != null){
                 Debug.Log("Sending audio");
                 Debug.Log("Sending message: " + base64);
-                StartCoroutine(SendJsonRequest(base64, true));
+                StartCoroutine(SendJsonRequest(base64, true, speak));
             }
         }
 
