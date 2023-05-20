@@ -1,4 +1,4 @@
-<img src="https://www.carterapi.com/carter-full-white-transparent.svg" style="width: 200px"/>
+![GitHub Banners](https://github.com/Carter-Labs-Ltd/carter-unity-api/assets/16668357/52a512fa-b752-4245-99ac-40c9f379b601)
 
 # Carter Unity
 
