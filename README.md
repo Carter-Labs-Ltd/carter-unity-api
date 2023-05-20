@@ -1,8 +1,7 @@
 ![GitHub Banners](https://github.com/Carter-Labs-Ltd/carter-unity-api/assets/16668357/52a512fa-b752-4245-99ac-40c9f379b601)
 
-# Carter Unity
-
-Make your game characters talk in minutes with next generation artificial intelligence. This package is still under active development and is not yet ready for production use.
+# Bring your sidekick into digital space.
+Bring a Carter sidekick into your game in minutes.
 
 ## Installation
 
@@ -13,7 +12,7 @@ To do this, go to: Window -> Package Manager -> Click the (+) add package from g
 
 ## Usage
 
-Getting started with Carter is easy. First configure your agent [here](https://studio.carterlabs.ai). Once you've got your agent's API Key come back here and add Carter to your game as below.
+Getting started with Carter is easy. First configure your agent [here](https://controller.carterlabs.ai). Once you've got your agent's API Key come back here and add Carter to your game as below.
 
 ### Text Based Chat
 
