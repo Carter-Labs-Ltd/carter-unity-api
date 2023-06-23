@@ -33,7 +33,7 @@ namespace Carter {
     {
         public string url;
         public string key;
-        public string playerId;
+        public string user_id;
 
         public delegate void MessageEventHandler(ApiResponse response, bool audio);
         public event MessageEventHandler onMessage;
@@ -44,7 +44,7 @@ namespace Carter {
         [System.Serializable]
         public class Message {
             public string key;
-            public string playerId;
+            public string user_id;
             public string text;
             public bool speak;
         }
@@ -52,7 +52,7 @@ namespace Carter {
         [System.Serializable]
         public class AudioMessage {
             public string key;
-            public string playerId;
+            public string user_id;
             public string audio;
             public bool speak;
         }
@@ -99,7 +99,7 @@ namespace Carter {
             if (audio) {
                 AudioMessage msg = new AudioMessage {
                     key = this.key,
-                    playerId = this.playerId,
+                    user_id = this.user_id,
                     audio = message,
                     speak = speak
                 };
@@ -107,7 +107,7 @@ namespace Carter {
             } else {
                 Message msg = new Message {
                     key = this.key,
-                    playerId = this.playerId,
+                    user_id = this.user_id,
                     text = message,
                     speak = speak
                 };
